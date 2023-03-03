@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 from py_http import *
 
 class Server(HttpServer):
@@ -10,8 +13,6 @@ class Server(HttpServer):
 		if endpoint == "/":
 			return self.read_static_file(file_name + "index.html")
 		elif os.path.exists(file_name):
-#			if ".mp4" in file_name:
-#				return self.read_video(file_name)
 			return self.read_static_file(file_name)
 		else:
 			return self.error_page(500, f"Unknown endpoint: {endpoint}")

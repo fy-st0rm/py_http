@@ -2,35 +2,39 @@ from .log import *
 from .http_data import *
 from .defines import *
 
+# NOTE: This function breaks if the recevied data is not an http request
 def parse_http_to_json(http: str) -> dict:
 	http_json = {}
-
-	lines = http.split("\r\n\r\n")
-	meta_lines = lines[0]
-	payload    = lines[1]
-
-	# Parsing the first line 
-	meta_lines = meta_lines.split("\r\n")
-	request  = meta_lines.pop(0)
-	request, endpoint, http_ver = request.split(" ")
-	http_json.update({
-		REQUEST      : request,
-		ENDPOINT     : endpoint,
-		HTTP_VERSION : http_ver
-	})
-
-	# Parsing meta data 
-	for meta in meta_lines:
-		key, val = meta.split(": ")
-		http_json.update({key: val})
-
-	# Adding the payload
 	try:
-		if payload:
-			payload = json.loads(payload)
-			http_json.update({"payload": payload})
+		lines = http.split("\r\n\r\n")
+		meta_lines = lines[0]
+		payload    = lines[1]
+
+		# Parsing the first line 
+		meta_lines = meta_lines.split("\r\n")
+		request  = meta_lines.pop(0)
+		request, endpoint, http_ver = request.split(" ")
+		http_json.update({
+			REQUEST      : request,
+			ENDPOINT     : endpoint,
+			HTTP_VERSION : http_ver
+		})
+
+		# Parsing meta data 
+		for meta in meta_lines:
+			key, val = meta.split(": ")
+			http_json.update({key: val})
+
+		# Adding the payload
+		try:
+			if payload:
+				payload = json.loads(payload)
+				http_json.update({"payload": payload})
+		except Exception as e:
+			server_error(f"Failed to load payload. Payload needs to be in json.\nReason: {e}.")
+
 	except Exception as e:
-		server_error(f"Failed to load payload. Payload needs to be in json.\nReason: {e}.")
+		server_error(e);
 
 	return http_json
 

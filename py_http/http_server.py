@@ -45,20 +45,6 @@ class HttpServer:
 		http_data.add(PAYLOAD, file)
 		return http_data
 
-	def read_video(self, file_name: str) -> HttpData:
-		if not os.path.exists(file_name):
-			server_error(f"Failed to locate file: {file_name}")
-
-		with open(file_name, "rb") as f:
-			file = f.read()
-		http_data = HttpData({})
-		http_data.add(HTTP_STATUS, "HTTP/1.1 200 OK")
-		http_data.add(CONTENT_TYPE, http_types[file_name.split(".")[-1]])
-		http_data.add("Range", f"bytes=0-{BUFF_SIZE}")
-		http_data.add(CONTENT_LEN, BUFF_SIZE)
-		http_data.add(PAYLOAD, file[:BUFF_SIZE])
-		return http_data
-
 	def error_page(self, code: int, error: str) -> HttpData:
 		html = bytes(f"""
 			<html>
@@ -102,8 +88,6 @@ class HttpServer:
 					continue
 				http_conn.temp_buffer = ""
 
-				print(recv)
-
 				# Parsing the received http protocol
 				parsed_recv = parse_http_to_json(recv)
 				http_data = HttpData(parsed_recv)
@@ -126,7 +110,6 @@ class HttpServer:
 
 				# Converting http data to bytes
 				ret_data = parse_httpdata_to_bytes(ret_http_data)
-				print(ret_data)
 				http_conn.conn.send(ret_data)
 			else:
 				http_conn.active = False

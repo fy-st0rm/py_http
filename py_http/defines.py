@@ -27,6 +27,7 @@ http_types = {
 	"json": "application/json",
 	"jpg" : "image/jpeg",
 	"png" : "image/png",
-	"mp4" : "video/mp4"
+	"mp4" : "video/mp4",
+	"mp3" : "audio/mpeg"
 }
 
