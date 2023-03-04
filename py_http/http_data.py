@@ -1,8 +1,12 @@
 from .imports import *
 from .log import *
 
+
+# @brief Class that defines the data that flows inside of the http framework
+# @param http_json: Http data in the form of python dict
+
 class HttpData:
-	def __init__(self, http_json: json):
+	def __init__(self, http_json: dict):
 		self.__data = http_json
 
 	def __str__(self):

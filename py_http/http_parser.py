@@ -2,7 +2,11 @@ from .log import *
 from .http_data import *
 from .defines import *
 
-# NOTE: This function breaks if the recevied data is not an http request
+
+# @brief Function to convert http string to python dict
+# @param http: HTTP request in the form of string
+# @return Returns the dictionary
+
 def parse_http_to_json(http: str) -> dict:
 	http_json = {}
 	try:
@@ -38,6 +42,10 @@ def parse_http_to_json(http: str) -> dict:
 
 	return http_json
 
+
+# @brief Function that converts HttpData into string bytes
+# @param http_data: HttpData class
+# @return Returns the bytes
 
 def parse_httpdata_to_bytes(http_data: HttpData) -> bytes:
 	res = b""

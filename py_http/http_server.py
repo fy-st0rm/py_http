@@ -5,6 +5,10 @@ from .http_data import *
 from .http_response import *
 
 
+# @brief Class to store the socket connection
+# @param conn  : socket.socket connection class
+# @param active: Bool to describe if the connection is active or not
+
 class HttpConn:
 	def __init__(self, conn: socket.socket, active: bool):
 		self.conn        = conn
@@ -15,12 +19,19 @@ class HttpConn:
 		return "HttpConn {\n" + f"Conn: {self.conn}\n" + f"active: {self.active}\n" + f"temp_buffer: {self.temp_buffer}\n" + "}\n"
 
 
+# @brief HttpServer is a class of the main server. Users are meant to inherent from this class
+# @param ip  : Ip address of the server
+# @param port: Port of the server
+
 class HttpServer:
 	def __init__(self, ip: str, port: int):
 		self.ip = ip
 		self.port = port
 		self.running = True
 		self.__establish_server()
+
+
+	# @brief Function to create socket server
 
 	def __establish_server(self):
 		try:
@@ -31,7 +42,11 @@ class HttpServer:
 		except Exception as e:
 			server_error(f"Failed to create server on ({self.ip}:{self.port}).\nReason: {e}")
 
-	# Utils
+
+	# @brief Function that reads static files and converts it into HttpData
+	# @param file_name = Name of the file to read
+	# @return Returns the HttpData of the file
+
 	def read_static_file(self, file_name: str) -> HttpData:
 		if not os.path.exists(file_name):
 			server_error(f"Failed to locate file: {file_name}")
@@ -44,6 +59,12 @@ class HttpServer:
 		http_data.add(CONTENT_LEN, len(file))
 		http_data.add(PAYLOAD, file)
 		return http_data
+
+
+	# @brief Function that creates an error page and converts it into HttpData
+	# @param code = Error code
+	# @param erro = Error message
+	# @return Returns HttpData of the error page
 
 	def error_page(self, code: int, error: str) -> HttpData:
 		html = bytes(f"""
@@ -61,7 +82,12 @@ class HttpServer:
 		http_data.add(PAYLOAD, html)
 		return http_data
 
-	# This function is resposnible for detection of payload during post request. If not received it waits to receive again
+
+	# @brief This function is resposnible for detection of payload during post request. If not received it waits to receive again
+	# @param conn = HttpConn class
+	# @param data = Http string
+	# @return Returns bool (true: Done capturing, false: Capturing not finished)
+
 	def __post_checker(self, conn: HttpConn, data: str) -> bool:
 		parsed_recv = parse_http_to_json(data)
 		if parsed_recv[REQUEST] == POST:
@@ -73,6 +99,10 @@ class HttpServer:
 				conn.temp_buffer = data
 				return False
 		return True
+
+
+	# @brief Function that handles individual connections
+	# @param http_conn: HttpConn object
 
 	def __conn_handler(self, http_conn: HttpConn):
 		while http_conn.active:
@@ -113,6 +143,9 @@ class HttpServer:
 				http_conn.conn.send(ret_data)
 			else:
 				http_conn.active = False
+
+
+	# @brief Function to run the server
 
 	def run(self):
 		self.server.listen()

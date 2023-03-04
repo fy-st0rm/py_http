@@ -1,6 +1,3 @@
-import sys
-sys.path.append("..")
-
 from py_http import *
 
 class Server(HttpServer):
